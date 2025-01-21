@@ -1,0 +1,14 @@
+{
+  "name": "objects",
+  "version": "1.0.0",
+  "main": "classes-bank-account.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "enquirer": "^2.4.1"
+  }
+}

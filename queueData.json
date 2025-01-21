@@ -1,0 +1,16 @@
+{
+  "user": "",
+  "queue": [
+    {
+      "user": "Lucas",
+      "ticket": 1
+    },
+    {
+      "user": "Celso",
+      "ticket": 2
+    }
+  ],
+  "tickets": [],
+  "history": [],
+  "nextTicketNumber": 3
+}
