@@ -1,16 +1,12 @@
 {
   "user": "",
-  "queue": [
-    {
-      "user": "Lucas",
-      "ticket": 1
-    },
-    {
-      "user": "Celso",
-      "ticket": 2
-    }
-  ],
+  "queue": [],
   "tickets": [],
   "history": [],
-  "nextTicketNumber": 3
+  "sections": {
+    "Bakery": 1,
+    "Butcher": 1,
+    "Fishmonger": 1,
+    "Deli": 1
+  }
 }

@@ -3,47 +3,71 @@ class QueueSystem {
     this.user = user;
     this.tickets = [];
     this.queue = sharedQueue;
-    this.ticketIndexMap = new Map();
     this.history = [];
-    this.nextTicketNumber = 1;
+    this.sections = {
+      Bakery: 0,
+      Butcher: 0,
+      Fishmonger: 0,
+      Deli: 0,
+    };
   }
 
-  updateTicketIndexMap() {
-    this.ticketIndexMap.clear();
-    this.queue.forEach((item, index) => {
-      this.ticketIndexMap.set(item.ticket, index);
-    });
+  requestTicket(section) {
+    const ticketNumber = this.sections[section]++;
+    this.queue.push({ user: this.user, ticket: ticketNumber, section });
+    const positionInSection = this.queue.filter(
+      (item) => item.section === section
+    ).length;
+    return `Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
   }
 
-  requestTicket() {
-    const ticket = this.nextTicketNumber++;
-    this.queue.push({ user: this.user, ticket });
-    this.updateTicketIndexMap();
-    return `Ticket requested for ${this.user}, position ${this.queue.length} in queue`;
-  }
-
-  showQueue() {
-    return this.queue;
+  showQueue(section) {
+    return this.queue.filter((item) => item.section === section);
   }
 
   averageWaitTimeForAll() {
-    const n = this.queue.length;
-    if (n === 0) {
-      return 0;
-    }
-    const totalWaitTime = (n * (n + 1)) / 2;
-    return totalWaitTime / n;
+    const sectionWaitTimes = {
+      Bakery: 0,
+      Butcher: 0,
+      Fishmonger: 0,
+      Deli: 0,
+    };
+
+    const sectionCount = {
+      Bakery: 0,
+      Butcher: 0,
+      Fishmonger: 0,
+      Deli: 0,
+    };
+
+    this.queue.forEach((item) => {
+      const { section } = item;
+      const sectionTime =
+        this.queue.filter((q) => q.section === section).indexOf(item) + 1;
+
+      sectionWaitTimes[section] += sectionTime;
+      sectionCount[section]++;
+    });
+
+    const sectionAverages = {
+      Bakery: sectionWaitTimes.Bakery / sectionCount.Bakery,
+      Butcher: sectionWaitTimes.Butcher / sectionCount.Butcher,
+      Fishmonger: sectionWaitTimes.Fishmonger / sectionCount.Fishmonger,
+      Deli: sectionWaitTimes.Deli / sectionCount.Deli,
+    };
+
+    return sectionAverages;
   }
 
-  callNext() {
-    if (this.queue.length === 0) {
-      throw new Error("Queue is empty");
+  callNext(section) {
+    const sectionQueue = this.queue.filter((item) => item.section === section);
+    if (sectionQueue.length === 0) {
+      throw new Error(`${section} queue is empty`);
     }
-
-    const nextTicket = this.queue.shift();
+    const nextTicket = sectionQueue.shift();
     this.history.push(nextTicket);
-    this.updateTicketIndexMap();
-    return `Ticket called for ${nextTicket.user}, ticket number ${nextTicket.ticket}`;
+    this.queue = this.queue.filter((item) => item !== nextTicket);
+    return `Ticket for ${section} called for ${nextTicket.user}, ticket number ${nextTicket.ticket}`;
   }
 
   showLastCalledTickets() {
@@ -51,15 +75,19 @@ class QueueSystem {
       throw new Error("No tickets have been called yet");
     }
 
-    return this.history.slice(Math.max(this.history.length - 5, 0));
+    return this.history.slice(Math.max(this.history.length - 10, 0));
   }
 
   emptyQueue() {
     this.queue = [];
     this.history = [];
     this.tickets = [];
-    this.nextTicketNumber = 1;
-    this.updateTicketIndexMap();
+    this.sections = {
+      Bakery: 1,
+      Butcher: 1,
+      Fishmonger: 1,
+      Deli: 1,
+    };
   }
 
   toString() {
