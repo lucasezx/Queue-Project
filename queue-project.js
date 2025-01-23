@@ -1,24 +1,51 @@
+const fs = require("fs");
+
+const SECTION_NAMES = Object.freeze([
+  "Bakery",
+  "Butcher",
+  "Fishmonger",
+  "Deli",
+  "Checkout",
+]);
+
 class QueueSystem {
   constructor(user, sharedQueue = []) {
     this.user = user;
     this.tickets = [];
     this.queue = sharedQueue;
     this.history = [];
-    this.sections = {
-      Bakery: 0,
-      Butcher: 0,
-      Fishmonger: 0,
-      Deli: 0,
-    };
+    this.sections = SECTION_NAMES.reduce((acc, section) => {
+      acc[section] = 1;
+      return acc;
+    }, {});
   }
 
   requestTicket(section) {
     const ticketNumber = this.sections[section]++;
-    this.queue.push({ user: this.user, ticket: ticketNumber, section });
+    this.queue.push({
+      user: this.user,
+      ticket: ticketNumber,
+      section,
+      priority: false,
+    });
     const positionInSection = this.queue.filter(
       (item) => item.section === section
     ).length;
     return `Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
+  }
+
+  requestPriorityTicket(section) {
+    const ticketNumber = this.sections[section]++;
+    this.queue.push({
+      user: this.user,
+      ticket: ticketNumber,
+      section,
+      priority: true,
+    });
+    const positionInSection = this.queue.filter(
+      (item) => item.section === section
+    ).length;
+    return `Priority Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
   }
 
   showQueue(section) {
@@ -26,19 +53,15 @@ class QueueSystem {
   }
 
   averageWaitTimeForAll() {
-    const sectionWaitTimes = {
-      Bakery: 0,
-      Butcher: 0,
-      Fishmonger: 0,
-      Deli: 0,
-    };
+    const sectionWaitTimes = SECTION_NAMES.reduce((acc, section) => {
+      acc[section] = 0;
+      return acc;
+    }, {});
 
-    const sectionCount = {
-      Bakery: 0,
-      Butcher: 0,
-      Fishmonger: 0,
-      Deli: 0,
-    };
+    const sectionCount = SECTION_NAMES.reduce((acc, section) => {
+      acc[section] = 0;
+      return acc;
+    }, {});
 
     this.queue.forEach((item) => {
       const { section } = item;
@@ -62,12 +85,21 @@ class QueueSystem {
   callNext(section) {
     const sectionQueue = this.queue.filter((item) => item.section === section);
     if (sectionQueue.length === 0) {
-      throw new Error(`${section} queue is empty`);
+      console.log(`There are no tickets in the ${section} queue`);
     }
-    const nextTicket = sectionQueue.shift();
+
+    const nextTicketIndex = sectionQueue.findIndex((item) => item.priority);
+    let nextTicket;
+
+    if (nextTicketIndex !== -1) {
+      nextTicket = sectionQueue[nextTicketIndex];
+      this.queue = this.queue.filter((item) => item !== nextTicket);
+    } else {
+      nextTicket = sectionQueue.shift();
+      this.queue = this.queue.filter((item) => item !== nextTicket);
+    }
     this.history.push(nextTicket);
-    this.queue = this.queue.filter((item) => item !== nextTicket);
-    return `Ticket for ${section} called for ${nextTicket.user}, ticket number ${nextTicket.ticket}`;
+    return `Next ticket for ${section} is ${nextTicket.ticket} for ${nextTicket.user}`;
   }
 
   showLastCalledTickets() {
@@ -82,12 +114,10 @@ class QueueSystem {
     this.queue = [];
     this.history = [];
     this.tickets = [];
-    this.sections = {
-      Bakery: 1,
-      Butcher: 1,
-      Fishmonger: 1,
-      Deli: 1,
-    };
+    this.sections = SECTION_NAMES.reduce((acc, section) => {
+      acc[section] = 1;
+      return acc;
+    }, {});
   }
 
   toString() {
@@ -95,6 +125,49 @@ class QueueSystem {
       this.tickets
     }\nQueue: ${JSON.stringify(this.queue)}`;
   }
+
+  static saveQueue(queue, filePath) {
+    const dataToSave = {
+      user: "",
+      queue: queue.queue.filter(
+        (item) => item.user && item.ticket && item.section
+      ),
+      tickets: queue.tickets,
+      history: queue.history.filter((item) => item.user && item.ticket),
+      sections: SECTION_NAMES.reduce((acc, section) => {
+        acc[section] = queue.sections[section] || 1;
+        return acc;
+      }, {}),
+    };
+    fs.writeFileSync(filePath, JSON.stringify(dataToSave, null, 2));
+  }
+
+  static loadQueue(filePath) {
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath);
+      const parsedData = JSON.parse(data);
+
+      const queueSystem = new QueueSystem(parsedData.user || "");
+
+      queueSystem.queue = (parsedData.queue || []).filter(
+        (item) => item.user && item.ticket && item.section
+      );
+      queueSystem.tickets = parsedData.tickets || [];
+      queueSystem.history = (parsedData.history || []).filter(
+        (item) => item.user && item.ticket
+      );
+      queueSystem.sections = SECTION_NAMES.reduce((acc, section) => {
+        acc[section] = parsedData.sections?.[section] || 1;
+        return acc;
+      }, {});
+
+      return queueSystem;
+    }
+    return new QueueSystem();
+  }
 }
 
-module.exports = QueueSystem;
+module.exports = {
+  QueueSystem,
+  SECTION_NAMES,
+};

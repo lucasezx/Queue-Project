@@ -1,12 +1,98 @@
 {
   "user": "",
-  "queue": [],
+  "queue": [
+    {
+      "user": "Dona Luisa",
+      "ticket": 1,
+      "section": "Deli"
+    },
+    {
+      "user": "Ronaldo",
+      "ticket": 1,
+      "section": "Fishmonger"
+    },
+    {
+      "user": "Cristiano Euzébio",
+      "ticket": 2,
+      "section": "Butcher"
+    },
+    {
+      "user": "Lucas Euzébio",
+      "ticket": 3,
+      "section": "Bakery"
+    },
+    {
+      "user": "Oliver",
+      "ticket": 4,
+      "section": "Bakery"
+    },
+    {
+      "user": "Lucas",
+      "ticket": 5,
+      "section": "Bakery"
+    },
+    {
+      "user": "Maria",
+      "ticket": 7,
+      "section": "Bakery"
+    },
+    {
+      "user": "Oliveira Santos",
+      "ticket": 9,
+      "section": "Bakery",
+      "priority": false
+    }
+  ],
   "tickets": [],
-  "history": [],
+  "history": [
+    {
+      "user": "Ana Maria",
+      "ticket": 1,
+      "section": "Bakery"
+    },
+    {
+      "user": "Tone",
+      "ticket": 1,
+      "section": "Butcher"
+    },
+    {
+      "user": "José",
+      "ticket": 8,
+      "section": "Bakery"
+    },
+    {
+      "user": "Lourdes",
+      "ticket": 6,
+      "section": "Bakery"
+    },
+    {
+      "user": "Celso Pereira",
+      "ticket": 2,
+      "section": "Bakery"
+    },
+    {
+      "user": "Correira Andre",
+      "ticket": 3,
+      "section": "Checkout",
+      "priority": true
+    },
+    {
+      "user": "Joãozão",
+      "ticket": 1,
+      "section": "Checkout"
+    },
+    {
+      "user": "Andre Correira",
+      "ticket": 2,
+      "section": "Checkout",
+      "priority": false
+    }
+  ],
   "sections": {
-    "Bakery": 1,
-    "Butcher": 1,
-    "Fishmonger": 1,
-    "Deli": 1
+    "Bakery": 10,
+    "Butcher": 3,
+    "Fishmonger": 2,
+    "Deli": 2,
+    "Checkout": 4
   }
 }

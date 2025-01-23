@@ -1,48 +1,7 @@
-const fs = require("fs");
-const QueueSystem = require("./queue-project");
+const { QueueSystem, SECTION_NAMES } = require("./queue-project.js");
 const { Select, Input } = require("enquirer");
 
 const FILE_PATH = "./queueData.json";
-
-function saveQueue(queue) {
-  const dataToSave = {
-    user: "",
-    queue: queue.queue.filter((item) => {
-      return item.user && item.ticket && item.section;
-    }),
-    tickets: queue.tickets,
-    history: queue.history.filter((item) => item.user && item.ticket),
-    sections: queue.sections,
-  };
-  fs.writeFileSync(FILE_PATH, JSON.stringify(dataToSave, null, 2));
-}
-
-function loadQueue() {
-  if (fs.existsSync(FILE_PATH)) {
-    const data = fs.readFileSync(FILE_PATH);
-    const parsedData = JSON.parse(data);
-
-    const queueSystem = new QueueSystem(parsedData.user);
-
-    queueSystem.queue = (parsedData.queue || []).filter(
-      (item) => item.user && item.ticket && item.section
-    );
-    queueSystem.tickets = parsedData.tickets || [];
-    queueSystem.history = (parsedData.history || []).filter(
-      (item) => item.user && item.ticket
-    );
-    queueSystem.nextTicketNumber = parsedData.nextTicketNumber || 1;
-    queueSystem.sections = parsedData.sections || {
-      Bakery: 1,
-      Butcher: 1,
-      Fishmonger: 1,
-      Deli: 1,
-    };
-
-    return queueSystem;
-  }
-  return new QueueSystem();
-}
 
 async function mainMenu() {
   const prompt = new Select({
@@ -50,6 +9,7 @@ async function mainMenu() {
     message: "Select an option",
     choices: [
       "Request Ticket",
+      "Request Priority Ticket",
       "Show Queue",
       "Call Next",
       "Average Wait Time",
@@ -66,7 +26,7 @@ async function mainMenu() {
     return "Exit";
   }
 
-  let queue = loadQueue();
+  let queue = QueueSystem.loadQueue(FILE_PATH);
 
   if (answer === "Request Ticket") {
     const userNamePrompt = new Input({
@@ -84,18 +44,42 @@ async function mainMenu() {
     const sectionPrompt = new Select({
       name: "section",
       message: "Select a section",
-      choices: ["Bakery", "Butcher", "Fishmonger", "Deli"],
+      choices: [...SECTION_NAMES],
     });
 
     const section = await sectionPrompt.run();
     console.log(queue.requestTicket(section));
   }
 
+    if (answer === "Request Priority Ticket") {
+    const userNamePrompt = new Input({
+      message: "Enter your name",
+      initial: queue.user || "",
+    });
+
+    const userName = await userNamePrompt.run();
+    queue.user = userName;
+
+    if (!userName) {
+      console.log("Please enter a name");
+      return;
+    }
+
+    const sectionPrompt = new Select({
+        name: "section",
+        message: "Select a section",
+        choices: [...SECTION_NAMES],
+    });
+
+    const section = await sectionPrompt.run();
+    console.log(queue.requestPriorityTicket(section));
+    }
+
   if (answer === "Show Queue") {
     const sectionPrompt = new Select({
       name: "section",
       message: "Select a section to view",
-      choices: ["Bakery", "Butcher", "Fishmonger", "Deli"],
+      choices: [...SECTION_NAMES],
     });
 
     const section = await sectionPrompt.run();
@@ -108,7 +92,7 @@ async function mainMenu() {
     const sectionPrompt = new Select({
       name: "section",
       message: "Select a section to call the next ticket",
-      choices: ["Bakery", "Butcher", "Fishmonger", "Deli"],
+      choices: [...SECTION_NAMES],
     });
 
     const section = await sectionPrompt.run();
@@ -139,7 +123,7 @@ async function mainMenu() {
     );
   }
 
-  saveQueue(queue);
+  QueueSystem.saveQueue(queue, FILE_PATH);
 }
 
 (async () => {
