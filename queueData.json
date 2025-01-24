@@ -12,11 +12,6 @@
       "section": "Fishmonger"
     },
     {
-      "user": "Cristiano Euzébio",
-      "ticket": 2,
-      "section": "Butcher"
-    },
-    {
       "user": "Lucas Euzébio",
       "ticket": 3,
       "section": "Bakery"
@@ -40,6 +35,24 @@
       "user": "Oliveira Santos",
       "ticket": 9,
       "section": "Bakery",
+      "priority": false
+    },
+    {
+      "user": "Lucs",
+      "ticket": 3,
+      "section": "Butcher",
+      "priority": false
+    },
+    {
+      "user": "Lucão",
+      "ticket": 4,
+      "section": "Checkout",
+      "priority": false
+    },
+    {
+      "user": "Paulo",
+      "ticket": 5,
+      "section": "Butcher",
       "priority": false
     }
   ],
@@ -86,13 +99,36 @@
       "ticket": 2,
       "section": "Checkout",
       "priority": false
+    },
+    {
+      "user": "Jose alvez",
+      "ticket": 10,
+      "section": "Bakery",
+      "priority": true
+    },
+    {
+      "user": "Lurdona",
+      "ticket": 4,
+      "section": "Butcher",
+      "priority": true
+    },
+    {
+      "user": "José",
+      "ticket": 5,
+      "section": "Checkout",
+      "priority": true
+    },
+    {
+      "user": "Cristiano Euzébio",
+      "ticket": 2,
+      "section": "Butcher"
     }
   ],
   "sections": {
-    "Bakery": 10,
-    "Butcher": 3,
+    "Bakery": 11,
+    "Butcher": 6,
     "Fishmonger": 2,
     "Deli": 2,
-    "Checkout": 4
+    "Checkout": 6
   }
 }

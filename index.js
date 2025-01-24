@@ -3,6 +3,15 @@ const { Select, Input } = require("enquirer");
 
 const FILE_PATH = "./queueData.json";
 
+async function selectSection() {
+  const sectionPrompt = new Select({
+    name: "section",
+    message: "Select a section",
+    choices: [...SECTION_NAMES],
+  });
+  return await sectionPrompt.run();
+}
+
 async function mainMenu() {
   const prompt = new Select({
     name: "Queue",
@@ -28,75 +37,35 @@ async function mainMenu() {
 
   let queue = QueueSystem.loadQueue(FILE_PATH);
 
-  if (answer === "Request Ticket") {
+  if (["Request Ticket", "Request Priority Ticket"].includes(answer)) {
     const userNamePrompt = new Input({
       message: "Enter your name",
       initial: queue.user || "",
     });
     const userName = await userNamePrompt.run();
     queue.user = userName;
-
     if (!userName) {
       console.log("Please enter a name");
       return;
     }
 
-    const sectionPrompt = new Select({
-      name: "section",
-      message: "Select a section",
-      choices: [...SECTION_NAMES],
-    });
 
-    const section = await sectionPrompt.run();
-    console.log(queue.requestTicket(section));
+
+    const section = await selectSection();
+    const isPriority = answer === "Request Priority Ticket";
+    console.log(queue.requestTicket(section, isPriority));
   }
 
-    if (answer === "Request Priority Ticket") {
-    const userNamePrompt = new Input({
-      message: "Enter your name",
-      initial: queue.user || "",
-    });
-
-    const userName = await userNamePrompt.run();
-    queue.user = userName;
-
-    if (!userName) {
-      console.log("Please enter a name");
-      return;
-    }
-
-    const sectionPrompt = new Select({
-        name: "section",
-        message: "Select a section",
-        choices: [...SECTION_NAMES],
-    });
-
-    const section = await sectionPrompt.run();
-    console.log(queue.requestPriorityTicket(section));
-    }
-
   if (answer === "Show Queue") {
-    const sectionPrompt = new Select({
-      name: "section",
-      message: "Select a section to view",
-      choices: [...SECTION_NAMES],
-    });
-
-    const section = await sectionPrompt.run();
+    const section = await selectSection();
     console.log(
       `${section} queue: ${JSON.stringify(queue.showQueue(section), null, 2)}`
     );
   }
 
   if (answer === "Call Next") {
-    const sectionPrompt = new Select({
-      name: "section",
-      message: "Select a section to call the next ticket",
-      choices: [...SECTION_NAMES],
-    });
-
-    const section = await sectionPrompt.run();
-    console.log(queue.callNext(section));
+    const section = await selectSection();
+    console.log(queue.callNextTicket(section));
   }
 
   if (answer === "Average Wait Time") {

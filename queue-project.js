@@ -20,32 +20,18 @@ class QueueSystem {
     }, {});
   }
 
-  requestTicket(section) {
+  requestTicket(section, isPriority = false) {
     const ticketNumber = this.sections[section]++;
     this.queue.push({
       user: this.user,
       ticket: ticketNumber,
       section,
-      priority: false,
+      priority: isPriority,
     });
     const positionInSection = this.queue.filter(
       (item) => item.section === section
     ).length;
-    return `Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
-  }
-
-  requestPriorityTicket(section) {
-    const ticketNumber = this.sections[section]++;
-    this.queue.push({
-      user: this.user,
-      ticket: ticketNumber,
-      section,
-      priority: true,
-    });
-    const positionInSection = this.queue.filter(
-      (item) => item.section === section
-    ).length;
-    return `Priority Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
+    return `${isPriority ? "Priority" : ""} Ticket for ${section} requested for ${this.user}, position ${positionInSection} in queue`;
   }
 
   showQueue(section) {
@@ -82,22 +68,16 @@ class QueueSystem {
     return sectionAverages;
   }
 
-  callNext(section) {
+  callNextTicket(section) {
     const sectionQueue = this.queue.filter((item) => item.section === section);
     if (sectionQueue.length === 0) {
       console.log(`There are no tickets in the ${section} queue`);
     }
 
     const nextTicketIndex = sectionQueue.findIndex((item) => item.priority);
-    let nextTicket;
-
-    if (nextTicketIndex !== -1) {
-      nextTicket = sectionQueue[nextTicketIndex];
-      this.queue = this.queue.filter((item) => item !== nextTicket);
-    } else {
-      nextTicket = sectionQueue.shift();
-      this.queue = this.queue.filter((item) => item !== nextTicket);
-    }
+    const nextTicket = nextTicketIndex === -1 ? sectionQueue[0] : sectionQueue[nextTicketIndex];
+    
+    this.queue = this.queue.filter((item) => item !== nextTicket);
     this.history.push(nextTicket);
     return `Next ticket for ${section} is ${nextTicket.ticket} for ${nextTicket.user}`;
   }
